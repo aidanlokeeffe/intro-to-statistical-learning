@@ -185,18 +185,90 @@ dim(A)
 ## 2.3.4 Loading Data
 For most analyses, the first step involved importing a data set into __R__. The __read.table()__ function is one of the primary ways to do this. The help file contains details about how to use this function. We can use the function __write.table()__ to export data.
 
+Before attempting to load a data set, we must make sure that __R__ knows to search for the data in the proper directory. For example, on a Windows system, one could select the directory using the __Change dir...__ option under the __File__ menu. However, the details of how to do this depend on the operating system, (e.g. Windows, Mac, Unix) that is being used, and so we do not give further details here. We begin by loading in the __Auto__ data set. This data is part of the __ISLR_ library (we discuss libraries in Chapter 3), but to illustrate the __read.table()__ function we load it now from a text file. The following command will load the Auto.data file into __R__ and store it as an object called __Auto__, in a format referred to as a _data frame_. (This test file can be obtained from this book's website.) Once the data has been loaded, the __fix()__ function can be used to view it in a spreadsheet like window. However, the window must be closed before further __R__ commands can be entered.
+```{r}
+Auto = read.table("Auto.data")
+#fix(Auto)
+```
+Note that Auto.data is simply a text file, which you could alternatively open on your computer using a standard text editor. It is often a good idea to view a data set using a text editor or other software such as Excel before loading it into __R__.
 
+This particular data set has not been loaded correctly, because __R__ has assumed that the variable names are part of the data and so has included them in the first row. The data set also includes a number of missing observations, indicated by the question mark __?__. Missing values are a common occurrence in real data sets. Using the option __header=T__ (or __header=TRUE__) in the __read.table()__ function tells __R__ that the first line of the file contains the variable names, and using the option __na.strings__ tells __R__ that any time it sees a particular character or set of characters (such as a question mark), is should be treated as a missing element of the data matrix.
+```{r}
+Auto=read.table("Auto.data", header=TRUE, na.strings="?")
+#fix(Auto)
+```
+Excel is a common-format data storage program. An easy way to load such data into __R__ is to save it as a csv (comma separated value) file and then use the __read.csv()__ function to load it in.
+```{r}
+Auto = read.csv("Auto.csv", header=TRUE, na.strings="?")
+#fix(Auto)
+dim(Auto)
+Auto[1:4,]
+```
+The __dim()__ function tells us that the data has 397 observations, or rows, and 9 variables, or columns. There are various ways to deal with the missing data. In this case, only 5 of the rows contain missing observations, and so we chose to use the na.omit() function to simply remove these rows.
+```{r}
+Auto = na.omit(Auto)
+dim(Auto)
+```
 
+Once the data are loaded correctly, we can use __names()__ to check the variable names.
+```{r}
+names(Auto)
+```
 
+## 2.3.5 Additional Graphical and Numerical Summaries
+We can use the __plot()__ function to produce scatterplots of the quantitative variables. However, simply typing the variable names will produce an error message, because __R__ does not know to look in the Auto data set for those variables.
 
+To refer to a variable, we must type the data set and the variable name joined with a __$__ symbol. Alternatively, we can use the __attach()__ function in order to tell __R__ to make the variables in this data frame available by name.
+```{r}
+plot(Auto$cylinders, Auto$mpg)
+attach(Auto)
+plot(cylinders, mpg)
+```
+The __cylinders__ variable is stored as a numeric vector, so __R__ has treated it as quantitative. However, since there are only a small number of possible values for __cylinders__, one may prefer to treat it as a qualitative variable. The __as.factor()__ function converts quantitative variables into qualitative variables.
+```{r}
+cylinders = as.factor(cylinders)
+cylinders
+```
+If ther variable plotted on the _x_-axis is categorical, then _boxplots_ will automatically be produced by the __plot()__ function. As usual, a number of options can be specified in order to customize the plots.
+```{r}
+plot(cylinders, mpg)
+plot(cylinders, mpg, col="red", varwidth=T, horizontal=T, xlab="cylinders", ylab="MPG")
+```
 
+The __hist()__ function can be used to plot a _histogram_. Note that __col=2__ has the same effect as __col="red"__.
+```{r}
+hist(mpg)
+hist(mpg, col=2)
+hist(mpg, col=2, breaks=15)
+```
+The __pairs()__ function creates a _scatterplot matrix_, i.e. a scatterplot for every pair of variables for any given data set. We can also produce scatterplots for just a subset of the variables.
+```{r}
+pairs(Auto[, !(names(Auto)) %in% c("name") ])
+pairs(~mpg + displacement + horsepower + weight + acceleration, Auto)
+```
 
+In conjunction with the __plot()__ function, __identify()__ provides a useful interactive method for identifying the value for a particular variable for points on a plot. We pass in three arguments to __identify()__:
 
+1. The _x_-axis variable,
+2. The _y_-axis variable, and
+3. The variable whose values we would like to see printed for each point.
 
+Then, clicking on a given point in the plot will cause __R__ to print the value of the variable of interest. Right-clicking on the plot will exit the __identify()__ function. The numbers printed under the __identify()__ function correspond to the rows for the selected points.
+```{r}
+plot(horsepower, mpg)
+identify(horsepower, mpg, name)
+```
 
+Note that identify isn't gonna work for you if you're using Markdown.
 
+The __summary()__ function produces a numerical summary of each variable in a particular data set.
+```{r}
+summary(Auto)
+```
+For qualitative variables such as __name__, __R__ will list the number of observations that fall in each category. We can also produce a summary of just a single variable.
+```{r}
+summary(mpg)
+```
 
-
-
-
+Once we have finished using __R__, we type __q()__ in order to shut it down, or quit. When exiting __R__, we have the option to save the current _workspace_ so that all objects (such as data sets) that we have created in this __R__ session will be available next time. Before exiting __R__, we may want to save a record of all of the commands that we have typed in the most recent session; this can be accomplished using the __savehistory()__ function. Next time we enter __R__, we can load that history using the __loadhistory()__ function.
 
