@@ -1,0 +1,128 @@
+---
+title: "Chapter 2, Lab 1: Introduction to R"
+author: "Aidan O'Keeffe"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+In this lab, we will introduce some simple **R** commands. The best way to learn a new language is to try out the commands. **R** can be downloaded from http://cran.r-project.org/
+
+## 2.3.1 Basic Commands
+__R__ uses _functions_ to perform operations. To run a function called __funcname__, we type __funcname(input1, input2)__, where the inputs (or _arguments_) __input1__ and __input2__ tell __R__ how to run the function. A function can have any number of inputs. For example, to create a vector of numbers, we use the function __c()__ (for _concatenate_). Any numbers inside the parentheses are joined together. The following command instructs __R__ to join together the numbers 1, 3, 2, and 5, and to save them to a _vector_ named __x__. When we type __x__, it gives us back the vector.
+
+```{r}
+x <- c(1,3,2,5)
+x
+```
+
+Note that we can save things using "=" rather than "<-":
+```{r}
+x = c(1,6,2)
+y = c(1,4,3)
+```
+
+Hitting the _up_ arrow multiple times will display the previous commands, which can then be edited. This is useful since one often wishes to repeat a similar command. In addition, typing __?funcname__ will always cause __R__ to open a new help file window with additional information about the function __funcname__.
+
+We can tell __R__ to add two sets of numbers together. It will then add the first number from __x__ to the first number of __y__, and so on. However, __x__ and __y__ should be the same length. We can check their length using the __length()__ function.
+```{r}
+length(x)
+length(y)
+x+y
+```
+
+The __ls()__ function allows us to look at a list of all of the objects, such as data and functions, that we have saved so far. The __rm()__ function can be used to delete any that we don't want.
+```{r}
+ls()
+rm(x,y)
+ls()
+```
+
+It is also possible to remove all objects at once
+```{r}
+rm(list=ls())
+```
+
+The __matrix()__ function function can be used to create a matrix of numbers. Before we use the __matrix()__ function, we can learn more about it:
+```{r}
+#?matrix
+```
+
+The help file revelas that the __matrix()__ function takes a number of inputs, but for now we focus on the first three: the data (the entries in the matrix), the number of rows, and the number of columns. First, we create a simple matrix.
+```{r}
+x = matrix(data=c(1,2,3,4), nrow=2, ncol=2)
+x
+```
+
+Now, we could just as well omit typing __data=__, __nrow=__, and __ncol=__ in the command above; that is, we could just type
+```{r}
+x=matrix(c(1,2,3,4),2,2)
+```
+and this would have the same effect. However, it can sometimes be useful to specify the names of the arguments passed in, since otherwise __R__ will assume that the function arguments are passed into the function in the same order that is given in the function's help file. As this example illustrates, by default __R__ creates matrices by successively filling in columns. Alternatively, the __byrow=TRUE__ option can be used to populate the matrix in order of the rows.
+```{r}
+matrix(c(1,2,3,4),2,2,byrow=TRUE)
+```
+Notice that in the above command we did not assign the matrix to a value such as __x__. In this case the matrix is printed to the screen but is not saved for future calculations. The __sqrt()__ function returns the square root of each element of a vector or matrix. The command __x^2__ raises each element of __x__ to the power 2; any powers are possible, including fractional or negative powers.
+```{r}
+sqrt(x)
+x^2
+```
+
+The __rnorm__ function generates a vector of random normal variables, with first argument __n__ the sample size. Each time we call this function, we will get a different answer. Here, we create two correlated sets of numbers, __x__ and __y__, and use the __cor()__ function to compute the correlation between them.
+```{r}
+x = rnorm(50)
+y = x+rnorm(50,mean=50,sd=0.1)
+cor(x,y)
+```
+By default, __rnorm()__ creates standard normal random variables with a mean of 0 and a standard deviation of 1. However, the mean and standard deviation can be altered using the __mean__ and _sd__ arguments, as illustrated above. Sometimes, we want our code to reproduce the exact same set of random numbers; we can use the __set.seed()__ function to do this. The __set.seed()__ function takes an (arbitrary) integer argument.
+```{r}
+set.seed(1303)
+rnorm(5)
+set.seed(1303)
+rnorm(5)
+```
+We use __set.seed()__ throughout the labs whenever we perform calculations involving random quantities. In general, this should allow the user to reproduce our results. However, it should be noted that as new versions of __R__ become available it is possible that some small discrepancies may form between the book and the output from __R__.
+
+The __mean()__ and __var()__ functions can be used to compute the mean and variance of a vector of numbers. Applying __sqrt()__ to the output of __var()__ will give the standard deviation. Or we can simply use the __sd()__ function.
+```{r}
+set.seed(3)
+y = rnorm(100)
+mean(y)
+var(y)
+sqrt(var(y))
+sd(y)
+```
+
+## Graphics
+The __plot()__ function is the primary way to plot data in __R__. For instance, __plot(x,y)__ produces a scatterplot of the numbers in __x__ versus the numbers in __y__. There are many additional options that can be passed in to the __plot()__ function. For example, passing in the argument __xlab__ will result in a label on the _x_-axis. To find out more information about the __plot()__ function, type __?plot__.
+```{r}
+x = rnorm(100)
+y = rnorm(100)
+plot(x,y)
+plot(x,y, xlab="this is the x-axis", ylab="this is the y-axis", main="Plot of X vs. Y")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
