@@ -31,3 +31,39 @@ summary(college)
 college$Private = as.factor(college$Private) 
 pairs(college[,1:10])
 
+# iii. Use the plot() function to produce side-by-side boxplots of Outstate versus Private
+
+plot(x=college$Private, y=college$Outstate, xlab="Private", ylab="Outstate", main="Outstate vs. Private")
+
+# iv. Create a new qualitative variable called Elite, by binning the Top10perc variable. We are going to divide 
+# universities into two groups based on whether or not the proportion of students coming from the top 10% of their
+# high school classes exceeds 50%.
+
+Elite = rep("No", nrow(college))
+Elite[college$Top10perc > 50] = "Yes"
+Elite = as.factor(Elite)
+college = data.frame(college, Elite)
+
+summary(college$Elite)
+
+plot( college$Elite, college$Outstate, xlab="Elite", ylab="Outstate", main="Elite vs. Outstate")
+
+# v. Use the hist() function to produce some histograms with differing numbers of bins for a few of the quantitative 
+# variables. You may find the command par(mfrow=c(2,2)) useful: It will divide the print window into
+# four regions so that four plots can be made simultaneously. Modifying the arguments to this function will divide the 
+# screen in other ways.
+
+par(mfrow=c(2,2))
+
+hist(college$Apps, xlab="Apps", main="Histogram of Apps")
+hist(college$Accept, xlab="Accept", main="Histogram of Accept")
+hist(college$Top10perc, xlab="Top10perc", main="Histogram of Top10perc")
+hist(college$S.F.Ratio, xlab="S.F.Ratio", main="Histogram of S.F.Ratio")
+
+# vi Continue exploring your data, and provide a brief summary of what you discover
+#   What is the average acceptance rate? 
+#   Do elite schools have a lower acceptance rate (Accept/Apps)?
+#   How many private schools are elite? Public schools?
+#   Basically, get 95% confidence intervals for all of the quantitative variables based on the 
+# variables of private and elite (except Top10perc and Top25perc). Go ahead and hypothesis test
+# which differences are significant.
