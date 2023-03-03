@@ -7,10 +7,14 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library("scatterplot3d")
 ```
 
+
+# Conceptual
 ## Exercise 1
-### Problem
+#### Problem
 For each of parts (a) through (d), indicate whether we would generally expect the performance of a flexible statistical learning method to be better or worse than an inflexible model. Justify your answer.
 
 a) The sample size $n$ is extremely large, and the number of predictors $p$ is small.
@@ -53,15 +57,18 @@ b) Describe three real-life applications in which _regression_ might be useful. 
 c) Describe three real-life applications in which _cluster analysis_ might be useful.
 
 ### Solution
-ai) We may want to understand (infer) if a student will pass or fail  a class on the basis of their sex, age, GPA, and major .
-aii) We may want to predict if a political candidate will win or lose an election on the basis of their sex, age, political party, state, fundraising, and if they are the incumbent or not.
-aiii) We may want to predict if a car will sell or not on the basis of make, model, year, and mileage.
-bi) We may want to relate (infer) the mean delivery time of packets on a computer network on the basis of nodes, traffic over time, and an assortment of measures of network structure.
-bii) We may want to predict the change in sales on the basis of radio, TV, and newspaper advertising budgets and location data.
-biii) We may want to predict body fat as a function of neck, waist, and hip measurements, weight, height, and biological sex.
-ci) We want to identify online shoppers who are likely to buy a certain product by finding those who have bought many items with the same tags/product descriptors as the one in question.
-cii) Want to advertise a fuel rewards program by identifying drivers who drive many miles, use a diesel or gas engine, and what kind of vehicle they drive.
-ciii) You want to identify residents of a neighborhood who are using many resources, such as water, electricity, and gas.
+a)
+    i. We may want to understand (infer) if a student will pass or fail  a class on the basis of their sex, age, GPA, and major.
+    ii. We may want to predict if a political candidate will win or lose an election on the basis of their sex, age, political party, state, fundraising, and if they are the incumbent or not.
+    iii. We may want to predict if a car will sell or not on the basis of make, model, year, and mileage.
+b)
+    i. We may want to relate (infer) the mean delivery time of packets on a computer network on the basis of nodes, traffic over time, and an assortment of measures of network structure.
+    ii. We may want to predict the change in sales on the basis of radio, TV, and newspaper advertising budgets and location data.
+    iii. We may want to predict body fat as a function of neck, waist, and hip measurements, weight, height, and biological sex.
+c)
+    i. We want to identify online shoppers who are likely to buy a certain product by finding those who have bought many items with the same tags/product descriptors as the one in question.
+    ii. Want to advertise a fuel rewards program by identifying drivers who drive many miles, use a diesel or gas engine, and what kind of vehicle they drive.
+    iii. You want to identify residents of a neighborhood who are using many resources, such as water, electricity, and gas.
 
 ## Exercise 5
 ### Problem
@@ -74,14 +81,343 @@ Focusing on regression, flexible methods are capable of producing more accurate 
 ### Problem
 Describe the differences between a parametric and non-parametric statistical learning approach. What are the advantages of a parametric approach to regression of classification (as opposed to a non-parametric approach)? What are its disadvantages?
 
+### Solution
+Parametric functions assume a functional form of the relationship between the response and the predictors, whereas non-parametric functions don't. Parametric approaches are easier to interpret than non-parametric approaches, they are less computationally intensive to fit, and they perform better in high dimensional, although they may give less accurate predictions than non-parametric methods due to having higher model bias.
 
+## Exercise 7
+### Problem
+The table below provides a training data set containing six observations, three predictors, and one qualitative response variable.
+```{r}
+data = data.frame(c(0,2,0,0,-1,1),c(3,0,1,1,0,1),c(0,0,3,2,1,1),c("Red","Red","Red","Green","Green","Red"))
+row.names(data) = 1:6
+names(data) = c("X1", "X2", "X3", "Y")
+data
+```
+Suppose we wish to use this data set to make a prediction for Y when $X_1=X_2=X_3=0$ using _K_-nearest neighbors.
+a) Compute the Euclidean distance between each observation and the test point, $X_1=X_2=X_3=0$.
+b) What is our prediction with K=1? Why?
+c) What is our prediction with K=3? Why?
+d) If the Bayes decision boundary in this problem is highly nonlinear, then would we expect the _best_ value for _K_ to be large or small? Why?
 
-## Including Plots
+### Solution
+a)
+```{r}
+distances <- data.frame(sqrt(data$X1^2 + data$X2^2 + data$X3^2), data$Y) %>% 
+  set_names(c("dist", "Y")) %>% 
+  arrange(dist)
+distances
+```
+b) When _K_ = 1, our prediction is green because a plurality of the _K_ points closest to the test point are green.
+c) When _K_ = 3, our prediction is red because a plurality of the _K_ points closest to the test point are red.
+d) If the Bayes decision boundary is highly nonlinear, then the optimal value of _K_ should be small. When _K_ is small, the KNN classification boundary is able to take on a more squiggly shape, on account of only being determined locally. When _K_ is large, the decision boundary is less flexible because it is smoothed out by a larger set of neighbors.
 
-You can also embed plots, for example:
+# Applied
+## Exercise 8
+This exercise relates to the __College__ data set, which can be found in the file __College.csv__. It contains a number of variables for 777 different universities and colleges in the US. The variables are
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+  * __Private__: Public/private indicator
+  * __Apps__: Number of applications received
+  * __Accept__: Number of applicants accepted
+  * __Enroll__: Number of new students enrolled
+  * __Top10perc__: New students from top 10% of high school class
+  * __Top25perc__: New students from top 25% of high school class
+  * __F.Undergrad__: Number of full-time undergraduates
+  * __P.Undergrad__: Number of part-time undergraduates
+  * __Outstate__: Out-of-state tuition
+  * __Room.Board__: Room and board costs
+  * __Books__: Estimated book costs
+  * __Personal__: Estimated personal spending
+  * __PhD__: Percent of faculty with Ph.D.'s
+  * __Terminal__: Percent of faculty with terminal degree
+  * __S.F.Ratio__: Student/faculty ratio
+  * __perc.alumni__: Percent of alumni who donate
+  * __Expend__: Institution expenditure per student
+  * __Grad.Rate__: Graduation rate
+
+Before reading the data into __R__, it can be viewed in Excel or a text editor.
+
+a) Use the __read.csv()__ function to read the data into __R__. Call the loaded data __college__. Make sure that you have the directory set to the correct location for the data.
+```{r}
+college = read.csv("College.csv", header=TRUE)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+b) Look at the data using the fix() function. You should notice that the first column is just the name of each university. We don't really want R to treat this as data. However, it may be handy to have these names for later. Try the following commands:
+```{r}
+rownames(college) = college[,1]
+#fix(college)
+```
+You should see that there is now a __row.names__ column with the name of each university recorded. This means that __R__ has given each row a name corresponding to the appropriate university. __R__ will not try to perform calculations on the row names. However, we still need to eliminate the first column in the data where row names are stored. Try
+```{r}
+college = college[,-1]
+#fix(college)
+```
+Now you should see that the first data column is __Private__. Note that another column labeled __row.names__ now appears before the __Private__ column. However, this is not a data column but rather the name that __R__ is giving to each row.
+
+c) 
+    i. Use the __summary()__ function to produce a numerical summary of the variables in the data set.
+    ```{r}
+    summary(college)
+    ```
+    
+    ii. Use the __pairs()__ function to produce a scatterplot matrix of the first ten columns or variables of the data. Recall that you can reference the first ten columns of a matrix A using A[,1:10].
+    ```{r}
+    college$Private = as.factor(college$Private) 
+    pairs(college[,1:10])
+    ```
+    
+    iii. Use the __plot()__ function to produce side-by-side boxplots of Outstate versus Private
+    ```{r}
+    plot(x=college$Private, y=college$Outstate, xlab="Private", ylab="Outstate", main="Outstate vs. Private")
+    ```
+
+    iv. Create a new qualitative variable called __Elite__, by binning the __Top10perc__ variable. We are going to divide universities into two groups based on whether or not the proportion of students coming from the top 10% of their high school classes exceeds 50%.
+    ```{r}
+    Elite = rep("No", nrow(college))
+    Elite[college$Top10perc > 50] = "Yes"
+    Elite = as.factor(Elite)
+    college = data.frame(college, Elite)
+    
+    summary(college$Elite)
+    plot( college$Elite, college$Outstate, xlab="Elite", ylab="Outstate", main="Elite vs. Outstate")
+    ```
+
+    v. Use the __hist()__ function to produce some histograms with differing numbers of bins for a few of the quantitative variables. You may find the command par(mfrow=c(2,2)) useful: It will divide the print window into four regions so that four plots can be made simultaneously. Modifying the arguments to this function will divide the screen in other ways.
+    ```{r}
+    par(mfrow=c(2,2))
+    hist(college$Apps, xlab="Apps", main="Histogram of Apps")
+    hist(college$Accept, xlab="Accept", main="Histogram of Accept")
+    hist(college$Top10perc, xlab="Top10perc", main="Histogram of Top10perc")
+    hist(college$S.F.Ratio, xlab="S.F.Ratio", main="Histogram of S.F.Ratio")
+    ```
+
+    vi Continue exploring your data, and provide a brief summary of what you discover.
+    ```{r}
+    # Okay, let's calculate acceptance rate
+    college$AcceptRate = college$Accept/college$Apps
+    # And now, I want to look at different variables as a function of elite
+    for (i in c(9,10,11,12,13,15,16,17,18,20)){
+      plot(x=college$Elite, y=college[,i], xlab="Elite", ylab=names(college)[i], main=paste(names(college)[i],"vs. Elite"))
+    }
+    ```
+    Elite is positively correlated with outstate, room.board, phd, perc.alumni, expend, grad.rate, and is negatively correlated with s.f.ratio and __AcceptRate__.
+    
+    Observe that elite schools have a lower exceptance rate than non-elite schools. 
+    
+    Below, the percentage of private and publuc schools that are elite is reported, respectively.
+    ```{r}
+    # How many private schools are elite? Public schools?
+    sum( college$Private == "Yes" & college$Elite == "Yes")/length(college$Private)
+    sum( college$Private == "No" & college$Elite == "Yes")/length(college$Private)
+    ```
+
+## Exercise 9
+This exercise involves the __Auto__ data set studied in the lab. Make sure that the missing values have been removed from the data.
+```{r}
+Auto = read.csv("Auto.csv", header=TRUE, na.strings="?")
+Auto = na.omit(Auto)
+View(Auto)
+```
+
+a) Which of the predictors are quantitative, and which are qualitative?
+
+__name__ and __origin__ are qualitative; the rest are quantitative.
+
+
+b) What is the range of each quantitative predictor? You can answer this using the __range()__ function.
+c) What is the mean and standard deviation of each quantitative predictor?
+
+The range, mean, and standard deviation of each predictor are reported in the following output.
+```{r}
+df = data.frame(c(range(Auto[,1]), mean(Auto[,1]), sd(Auto[,1])))
+for (i in 2:7){
+  df = data.frame(df, c(range(Auto[,i]), mean(Auto[,i]), sd(Auto[,i])))
+}
+names(df) = names(Auto)[-c(8,9)]
+rownames(df) = c("min", "max", "mean", "sd")
+df
+```
+
+d) Now remove the 10th through 85th observations. What is the range, mean, and standard deviation of each predictor in the subset of the data that remains.
+
+The range, mean, and standard deviation of each predictor over this subset is reported in the following output.
+```{r}
+Auto2 = Auto[-c(10:85),]
+df2 = data.frame(c(range(Auto2[,1]), mean(Auto2[,1]), sd(Auto2[,1])))
+for (i in 2:7){
+  df2 = data.frame(df2, c(range(Auto2[,i]), mean(Auto2[,i]), sd(Auto2[,i])))
+}
+names(df2) = names(Auto2)[-c(8,9)]
+rownames(df2) = c("min", "max", "mean", "sd")
+df2
+```
+
+
+e) Using the full data set, investigate the predictors graphically, using scatterplots or other tools of your choice. Create some plots highlighting the relationships among the predictors. Comment on your findings.
+```{r}
+pairs(Auto[,-c(8,9)])
+```
+
+1. Cars become more efficient over time, based on the tendency for __mpg__ to increase with __year__.
+2. __mpg__ decreases with __cylinders__, whereas __horsepower__ increases with __cylinders__, so it seems that there is a trade off between fuel efficiency and power.
+
+f) Suppose that we wish to predict gas mileage (__mpg__) on the basis of the other variables. Do your plots suggest that any of the other variables might be useful in predicting mpg? Justify your answer.
+
+Yes. _cylinders__, __year__, __displacement__, __horsepower__, and __weight__ all appear to be correlated with __mpg__, so these variables should be considered if attempting to predict __mpg__ from this data.
+
+## Exercise 10
+This exercise involved the __Boston__ housing data set.
+a) To begin, load in the __Boston__ data set. The __Boston__ data set is part of the __MASS__ library in __R__.
+```{r}
+library(MASS)
+```
+Now the data set is contained in the object Boston.
+
+How many rows are in this data set? How many columns? What do the rows and columns represent?
+
+This data set has 506 rows and 14 columns. Each row represents a suburb of Boston, and, pasting the output from the help file,
+```{r}
+# ?Boston
+```
+the columns are:
+
+* __crim__: per capita crime rate by town
+* __zn__: proportion of residential land zoned for lots over 25,000 sq.ft.
+* __indus__: proportion of non-retail business acres per town
+* __chas__: Charles River dummy variable (= 1 if tract bounds river; 0 otherwise).
+* __nox__: nitrogen oxides concentration (parts per 10 million).
+* __rm__: average number of rooms per dwelling.
+* __age__: proportion of owner-occupied units built prior to 1940.
+* __dis__: weighted mean of distances to five Boston employment centers.
+* __rad__: index of accessibility to radial highways.
+* __tax__:full-value property-tax rate per $10,000.
+* __ptratio__: pupil-teacher ratio by town
+* __black__: $1000(Bk - 0.63)^2$ where $Bk$ is the proportion of black people by town
+* __lstat__: lower status of the population (percent)
+* __medv__: median value of owner-occupied homes in $1000s
+
+b) Make some pairwise scatterplots of the predictors (columns) in this data set. Describe your findings.
+```{r}
+for (i in 1:14){
+  plot(Boston[,i], Boston$nox, xlab=names(Boston)[i], ylab="nox", main=paste("NOx vs.", names(Boston)[i]))
+}
+```
+__nox__ has the strongest positive correlations with __indus__, __age__, __rad__, __tax__, __ptratio__, and __lstat__, and the strongest negative correlations with __medv__, __black__, __dis__, and __zn__.
+
+c) Are there any predictors associated with per capita crime rate? If so, explain the relationship.
+```{r}
+for (i in 1:14){
+  plot(Boston[,i], Boston$crim, xlab=names(Boston)[i], ylab="crim", main=paste("crim vs.", names(Boston)[i]))
+}
+```
+Crime is positively correlated with __nox__, __age__, __rad__, __tax__, __lstat__, and negatively correlated with __medv__.
+
+d) Do any of the suburbs of Boston appear to have particularly high crime rates? Tax rates? Pupil-teacher ratios? Comment on the range of each predictor.
+
+The range of these particular predictors are reported below.
+```{r}
+summary(Boston$crim)
+summary(Boston$tax)
+summary(Boston$ptratio)
+```
+
+Most suburbs of Boston have a low crime rates (75% < 3.677 crimes per capita). But the upper tail is quite long, with one town even reaching a crime rate of 89%.
+
+The __tax__ distribution is bimodal, which may indicate that most neighborhoods were affordable, with a large handful being much more expensive.
+
+The __ptratio__ distribution is left skewed, which means that there are many suburbs of Boston where each teacher has to tend to many students. The neighborhoods with the highest crime rates have __ptratio__ values near the 3rd quartile. Interestingly, neighborhoods with __ptratio__ values between the 3rd and 4th quartiles have lower crime rates than those near the 3rd quartile.
+
+Inspecting for potential confounders leads to some interesting observations.
+```{r}
+for (i in c(2:10,12:14) ){
+  scatterplot3d(x=Boston$ptratio, y=Boston[,i], z=Boston$crim, ylab=names(Boston)[i], type="h")
+}
+
+scatterplot3d(x=Boston$ptratio, y=Boston$tax, z=Boston$crim, xlab="ptratio", ylab="tax", zlab="crim", main="Crime Rates vs. Pupil Teacher Ratio\n and Property Tax Rate")
+```
+
+Notice that the suburbs with the highest crime rates have ptratios at the 3rd quartile and very high tax rates. 
+```{r}
+scatterplot3d(x=Boston$ptratio, y=Boston$dis, z=Boston$crim, xlab="ptratio", ylab="dis", zlab="crim", main="Crime Rates vs. Pupil Teacher Ratio and\n Distance from Employment Centers")
+```
+
+All of the suburbs with the highest crime rates are very near to the city.
+
+```{r}
+scatterplot3d(x=Boston$ptratio, y=Boston$age, z=Boston$crim, xlab="ptratio", ylab="age", zlab="crim", main="Crime Rates vs. Pupil Teacher Ratio and Proportion \n of Pre-1940 Owner-Occupied Units")
+```
+
+All of the highest crime rate towns are very old.
+
+From this, we observe that the towns with the highest crime rates have many old buildings and are very close to Boston-proper. The fact that so many suburbs have a ptratio at one value, and that there is so much variation in the other predictors when ptratio is fixed at this value, may mean that this ptratio is some kind of state standard.
+
+e) How many of the suburbs in this data set bound the Charles river?
+```{r}
+count = sum(Boston$chas)
+percent = sum(Boston$chas)/length(Boston$chas) * 100
+print( paste(toString(count),"suburbs border the Charles River, accounting for ",toString(percent),"% of all suburbs in this data set.")   )
+```
+
+f) What is the median pupil-teacher ratio among the towns in this data set?
+```{r}
+median(Boston$ptratio)
+```
+
+g) Which suburb of Boston has the lowest median value of owner-occupied homes? What are the values of the other predictors for that suburb, and how do those values compare to the overall ranged for those predictors? Comment on your findings.
+```{r}
+min_val = min(Boston$medv)
+min_val_town = Boston[ Boston$medv == 5 ,]
+min_val_town
+```
+
+There are two suburbs with the lowest median value of owner-occupied homes, 399 and 406. We show how the value of their predictors compares with the others by giving their percentiles below.
+```{r}
+percentile = ecdf(Boston$crim)
+min_val_town_percentiles = data.frame(percentile(min_val_town$crim))
+for (i in 2:14){
+  percentile = ecdf(Boston[,i])
+  min_val_town_percentiles = data.frame(min_val_town_percentiles, percentile(min_val_town[,i]))
+}
+names(min_val_town_percentiles) = names(Boston)
+row.names(min_val_town_percentiles) = c(399, 406)
+min_val_town_percentiles
+```
+
+The placement of these suburbs' predictors is very similar, except for the percentiles of __rm__, __dis__, __black__, and __lstat__.
+
+h) In this data set, how many of the suburbs average more than seven rooms per dwelling? More than eight rooms per dwelling? Comment.
+```{r}
+# This is the percentage of suburbs averaging more than seven rooms per dwelling
+sum(Boston$rm > 7) / length(Boston$rm > 7) * 100
+
+# This is the percentage of suburbs averaging more than eight rooms per dwelling
+sum(Boston$rm > 8) / length(Boston$rm > 8)
+```
+
+Now, to see how these values compare to the sample as a whole, we take the mean of each predictor over this subset, and then obtain the quantile of those means in the whole sample.
+```{r}
+# STEP 1: Calculate the mean of each predictor over this subset
+rooms8 = Boston[Boston$rm > 8,]
+rooms8
+
+df = data.frame(mean(rooms8[,1]))
+for (i in 2:14){
+  df = data.frame(df, mean(rooms8[,i]))
+}
+names(df) = names(Boston)
+df[2,] = rep(0,14)
+append(df, c(0,0,0,0,0,0,0,0,0,0,0,0,0,0));
+row.names(df) = c("mean", "quantile")
+
+# STEP 2: Calculate the percentile of each mean within the distribution of the corresponding predictor in the whole sample
+for (i in 1:14){
+  quantile = ecdf(Boston[,i])
+  df[2,i] = quantile(df[1,i])
+}
+df
+```
+These towns have a very high median value. Many of them are on the Charleston River. They have a low ptratio, which means that there are many teachers for each student. Only a very small percentage of the population is of lower status. The crime is middling. This implies that these neighborhoods are wealthy, perhaps with many apartment buildings. It would be interesting to know if the crimes being committed in these suburbs are property crimes, as it's a common phenomenon for wealthy neighborhoods near big cities to suffer from such crime. It's surprising that the mean property tax is so low.
+
+
+
+
+

@@ -61,9 +61,34 @@ hist(college$Top10perc, xlab="Top10perc", main="Histogram of Top10perc")
 hist(college$S.F.Ratio, xlab="S.F.Ratio", main="Histogram of S.F.Ratio")
 
 # vi Continue exploring your data, and provide a brief summary of what you discover
-#   What is the average acceptance rate? 
-#   Do elite schools have a lower acceptance rate (Accept/Apps)?
-#   How many private schools are elite? Public schools?
-#   Basically, get 95% confidence intervals for all of the quantitative variables based on the 
-# variables of private and elite (except Top10perc and Top25perc). Go ahead and hypothesis test
-# which differences are significant.
+pairs(college[,11:19])
+par(mfrow=c(3,3))
+
+# Okay, let's calculate acceptance rate
+college$AcceptRate = college$Accept/college$Apps
+
+# And now, I want to look at different variables as a function of elite
+for (i in c(9,10,11,12,13,15,16,17,18,20)){
+  plot(x=college$Elite, y=college[,i], xlab="Elite", ylab=names(college)[i], main=paste(names(college)[i],"vs. Elite"))
+}
+
+# Elite is positively correlated with outstate, room.board, phd, perc.alumni, expend, grad.rate
+# Elite is negatively correlated with s.f.ratio and accept rate
+
+# Do elite schools have a lower acceptance rate (Accept/Apps)?
+# Yes, this is visible from the plot of accept rate vs. elite
+
+# How many private schools are elite? Public schools?
+sum( college$Private == "Yes" & college$Elite == "Yes")/length(college$Private)
+sum( college$Private == "No" & college$Elite == "Yes")/length(college$Private)
+
+# Are there significant differences between these quantities, broken up over elite?
+# I need to refer to another textbook for how to hypothesis test differences in R
+# LEARN THIS AND I CAN FINISH THIS PROBLEM
+
+
+
+
+
+
+

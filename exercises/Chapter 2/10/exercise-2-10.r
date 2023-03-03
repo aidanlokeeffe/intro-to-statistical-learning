@@ -30,7 +30,7 @@ for (i in 1:14){
 }
 # Crime seems to be positively correlated with nox, age, rad, tax, lstat, and negatively 
 # correlated with medv
-
+cor(Boston)
 
 # d) Do any of the suburbs of Boston appear to have particularly high crime rates? Tax rates?
 # Pupil-teacher ratios? Comment on the range of each predictor.
@@ -97,7 +97,28 @@ sum(Boston$rm > 7) / length(Boston$rm > 7)
 sum(Boston$rm > 8) / length(Boston$rm > 8)
 # 2.57%
 
-towns_8_rooms = Boston[Boston$rm > 8,]
-summary(towns_8_rooms)
-# Again, I'll comment on this again tomorrow, but what I really want to know is where these averages fall in the distribution of the
-# whole data set.
+# STEP 1: Calculate the mean of each predictor over this subset
+rooms8 = Boston[Boston$rm > 8,]
+rooms8
+
+df = data.frame(mean(rooms8[,1]))
+for (i in 2:14){
+  df = data.frame(df, mean(rooms8[,i]))
+}
+names(df) = names(Boston)
+df[2,] = rep(0,14)
+append(df, c(0,0,0,0,0,0,0,0,0,0,0,0,0,0))
+row.names(df) = c("mean", "quantile")
+
+# STEP 2: Calculate the percentile of each mean within the distribution of the corresponding predictor in the whole sample
+for (i in 1:14){
+  quantile = ecdf(Boston[,i])
+  df[2,i] = quantile(df[1,i])
+}
+df
+# 
+
+?Boston
+# These towns have a very high median value. Many of them are on the Charleston River. They have a lot ptratio, which means that there are many
+# teachers for each student. Only a very small percentage of the population is of lower status. The crime is middling. To me, this indicates that these
+# neighborhoods are probably wealthy, expensive suburbs with good schools. I'm surprised that the property tax isn't higher.
