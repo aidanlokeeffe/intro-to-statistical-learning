@@ -1,5 +1,6 @@
 # a) Use the read.csv() function to read the data into R. Call the loaded data college. Make sure that you have the 
 # directory set to the correct location for the data
+setwd("C:/Users/aidan/OneDrive/Desktop/intro-to-statistical-learning/exercises/Chapter 2/08")
 college = read.csv("college.csv", header=TRUE)
 
 
@@ -8,14 +9,11 @@ college = read.csv("college.csv", header=TRUE)
 # Try the following commands:
 
 rownames(college) = college[,1]
-fix(college)
-
 # You should see that there is now a row.names column with the name of each university recorded. This means that R
 # has given each row a name corresponding to the appropriate university. R will not try to perform calculations on
 # the row names. However, we still need to eliminate the first column in the data where toe names are stored. Try
 
 college = college[,-1]
-fix(college)
 
 # Now you should see that the first data column is Private. Note that another column labeled row.names now appears
 # before the Private column. However, this is not a data column but rather the name that R is giving to each row.
@@ -86,9 +84,20 @@ sum( college$Private == "No" & college$Elite == "Yes")/length(college$Private)
 # I need to refer to another textbook for how to hypothesis test differences in R
 # LEARN THIS AND I CAN FINISH THIS PROBLEM
 
+install.packages("plot3D")
+library("plot3D")
 
+par(mfrow=c(1,1))
 
+top10_cut = cut(college$Top10perc, 20)
+z = table(top10_cut, college$Private)
+z = table(top10_cut, college$Elite)
+image2D(z=z, border="black", xlab="Top10perc", ylab="Private")
 
+mean(college$Top10perc[college$Private == "Yes"])
+mean(college$Top10perc[college$Private == "No"])
+mean(college$Top10perc[college$Elite == "Yes"])
+mean(college$Top10perc[college$Elite == "No"])
 
-
-
+college$Elite
+as.numeric(college$Elite)

@@ -195,6 +195,8 @@ c)
     plot(x=college$Private, y=college$Outstate, xlab="Private", ylab="Outstate", main="Outstate vs. Private")
     ```
 
+    Private colleges tend to have more out-of-state students than public colleges.
+
     iv. Create a new qualitative variable called __Elite__, by binning the __Top10perc__ variable. We are going to divide universities into two groups based on whether or not the proportion of students coming from the top 10% of their high school classes exceeds 50%.
     ```{r}
     Elite = rep("No", nrow(college))
@@ -206,6 +208,8 @@ c)
     plot( college$Elite, college$Outstate, xlab="Elite", ylab="Outstate", main="Elite vs. Outstate")
     ```
 
+    Elite colleges tend to have more out-of-state students than non-elite colleges.
+
     v. Use the __hist()__ function to produce some histograms with differing numbers of bins for a few of the quantitative variables. You may find the command par(mfrow=c(2,2)) useful: It will divide the print window into four regions so that four plots can be made simultaneously. Modifying the arguments to this function will divide the screen in other ways.
     ```{r}
     par(mfrow=c(2,2))
@@ -215,25 +219,36 @@ c)
     hist(college$S.F.Ratio, xlab="S.F.Ratio", main="Histogram of S.F.Ratio")
     ```
 
+    Many colleges recieve only a few applications (<5000), whereas a few colleges recieve many applications.
+    Many colleges accept only a few students (<2500), whereas a few colleges accept many students.
+    The distributions for Top10perc and S.F.Ratio are approximately normal, although the former has a heavy upper tail, which may indicate that there are some elite colleges who have much higher numbers of incoming students who graduated in the top 10% of their high school class.
+
     vi Continue exploring your data, and provide a brief summary of what you discover.
     ```{r}
     # Okay, let's calculate acceptance rate
     college$AcceptRate = college$Accept/college$Apps
+    par(mfrow=c(3,3))
     # And now, I want to look at different variables as a function of elite
-    for (i in c(9,10,11,12,13,15,16,17,18,20)){
+    for (i in c(10,11,12,13,15,16,17,18,20)){
       plot(x=college$Elite, y=college[,i], xlab="Elite", ylab=names(college)[i], main=paste(names(college)[i],"vs. Elite"))
     }
     ```
     
-    Elite is positively correlated with outstate, room.board, phd, perc.alumni, expend, grad.rate, and is negatively correlated with s.f.ratio and __AcceptRate__.
-    
-    Observe that elite schools have a lower exceptance rate than non-elite schools. 
+    Elite is positively correlated with __Outstate__, __Room.Board__, __PhD__, __perc.alumni__, __Expend__, __Grad.Rate__, and is negatively correlated with __S.F.Ratio__ and __AcceptRate__. All of these associations make sense, as generally, you would expect that elite schools are more expensive and attract the best students and faculty. The acceptance rates are lower, which may help to explain why the student-to-faculty ratios are lower for elite schools.
     
     Below, the percentage of private and publuc schools that are elite is reported, respectively.
     ```{r}
     # How many private schools are elite? Public schools?
-    sum( college$Private == "Yes" & college$Elite == "Yes")/length(college$Private)
-    sum( college$Private == "No" & college$Elite == "Yes")/length(college$Private)
+    sum( college$Private == "Yes" & college$Elite == "Yes")/length(college$Private)*100
+    sum( college$Private == "No" & college$Elite == "Yes")/length(college$Private)*100
+    ```
+    
+    Finally, in the histogram of top10perc produced in part (c.v), note that the upper tail of the distribution was rather heavy, with a high mode around 20% and a low mode around 80%. It may be possible to model this distribution as a mixture of two normal distributions, one of top10perc given not elite, and the other of top10perc given elite. As preliminary evidence, consider that the means of top10percent over these two groups are very different.
+    ```{r}
+    # Mean of top10perc given elite
+    mean(college$Top10perc[college$Elite == "Yes"])
+    # Mean of top10perc given not elite
+    mean(college$Top10perc[college$Elite == "No"])
     ```
 
 ## Exercise 9
