@@ -47,7 +47,32 @@ a) Provide a sketch of typical (squared) bias, variance, training error, test er
 b) Explain why each of the five curves has the shape displayed in part (a).
 
 ### Solution
-I'M GONNA SKIP THIS FOR NOW BECAUSE THE PLOTTING IS A PAIN
+a) The code block below graphs the five curves in question. Note that the specific parameter values and functional forms don't matter, they were just chosen because they produce the correct general shape.
+```{r}
+library(tidyverse)
+
+# Generate the curves to be plotted
+df = 1:100
+bias2 = 10/(df^0.4)
+variance = 0.006*((df-1)/2)^2 + 3.1
+train = 11/(df^0.36)
+bayes = rep(1.84, 100)
+test = bias2 + variance + bayes
+
+data = data.frame( rep(1:100, 5), rep(c("bias^2", "variance", "training_error", "testing_error", "bayes_error"), each=100)  )
+data = data.frame(data, c(bias2,variance,train,test,bayes  ))
+names(data) = c("df", "Variable", "Value")
+
+# Plot them
+plt <- ggplot(data=data, aes(x=df, y=Value, group=Variable))+
+  geom_line(aes(color=Variable), linewidth=1)+
+  labs(x="df", y="Value")+
+  ggtitle("Various Error Values vs. Degrees of Freedom")
+
+plt
+```
+
+b) The Bayes error is a constant because it is defined as the variacne of the error terms, that is, $\mbox{Var}(\epsilon)$, a quantity which does not vary with the degrees of freedom. The squared bias is represented as a decreasing function that converges to 0, which is the case because as a model becomes more flexible, its form is less constrained, and so the error due to model bias approaches 0. The testing error (in an ideal setting) is represented as the sum of the squared bias, the variance, and the Bayes error, which is justified by the bias-variance decomposition. The training error is represented as another decreasing function that converges to 0, which is the case because as model flexibility increases, it becomes possible to overfit, even to the extreme case of interpolating the data points. Finally, the variance is an increasing function of flexibility. The text doesn't give a detailed argument as to why this is the case, but nonetheless says it is so.
 
 ## Exercise 4
 ### Problem
@@ -94,21 +119,21 @@ names(data) = c("X1", "X2", "X3", "Y")
 data
 ```
 Suppose we wish to use this data set to make a prediction for Y when $X_1=X_2=X_3=0$ using _K_-nearest neighbors.
+
 a) Compute the Euclidean distance between each observation and the test point, $X_1=X_2=X_3=0$.
 b) What is our prediction with K=1? Why?
 c) What is our prediction with K=3? Why?
 d) If the Bayes decision boundary in this problem is highly nonlinear, then would we expect the _best_ value for _K_ to be large or small? Why?
 
 ### Solution
-a)
+a) In the code block below, the Euclidean distance of each observation from the test point is calculated, and then the rows are put in descending order according to the distance.
 ```{r}
 distances <- data.frame(sqrt(data$X1^2 + data$X2^2 + data$X3^2), data$Y) %>% 
   set_names(c("dist", "Y")) %>% 
   arrange(dist)
 distances
 ```
-b) When _K_ = 1, our prediction is green because a plurality of the _K_ points closest to the test point are green.
-c) When _K_ = 3, our prediction is red because a plurality of the _K_ points closest to the test point are red.
+678954c) When _K_ = 3, our prediction is red because a plurality of the _K_ points closest to the test point are red.
 d) If the Bayes decision boundary is highly nonlinear, then the optimal value of _K_ should be small. When _K_ is small, the KNN classification boundary is able to take on a more squiggly shape, on account of only being determined locally. When _K_ is large, the decision boundary is less flexible because it is smoothed out by a larger set of neighbors.
 
 # Applied
@@ -141,7 +166,7 @@ a) Use the __read.csv()__ function to read the data into __R__. Call the loaded 
 college = read.csv("College.csv", header=TRUE)
 ```
 
-b) Look at the data using the fix() function. You should notice that the first column is just the name of each university. We don't really want R to treat this as data. However, it may be handy to have these names for later. Try the following commands:
+b) Look at the data using the __fix()__ function. You should notice that the first column is just the name of each university. We don't really want R to treat this as data. However, it may be handy to have these names for later. Try the following commands:
 ```{r}
 rownames(college) = college[,1]
 #fix(college)
@@ -199,6 +224,7 @@ c)
       plot(x=college$Elite, y=college[,i], xlab="Elite", ylab=names(college)[i], main=paste(names(college)[i],"vs. Elite"))
     }
     ```
+    
     Elite is positively correlated with outstate, room.board, phd, perc.alumni, expend, grad.rate, and is negatively correlated with s.f.ratio and __AcceptRate__.
     
     Observe that elite schools have a lower exceptance rate than non-elite schools. 
