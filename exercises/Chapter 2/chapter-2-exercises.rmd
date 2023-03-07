@@ -2,7 +2,9 @@
 title: "Chapter 2 Exercises"
 author: "Aidan O'Keeffe"
 date: "`r Sys.Date()`"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -19,19 +21,20 @@ For each of parts (a) through (d), indicate whether we would generally expect th
 
 a) The sample size $n$ is extremely large, and the number of predictors $p$ is small.
 b) The number of predictors $p$ is extremely large, and the number of observations $n$ is small.
-c) The relationship between the predictors and response is highly non-linear.
+c) The relationship between the predictors and response is highly nonlinear.
 d) The variance of the error terms, i.e. $\sigma^2 = \mbox{Var}(\epsilon)$, is extremely high.
 
 ### Solution
 a) A flexible model would likely perform much better than an inflexible model for two reasons. First, the relationship between the predictors and the response becomes more and more clear as the sample size grows, and since such relationships are almost always nonlinear, a flexible method could capitalize on the abundance of data to find such relationships. Second, because the number of predictors is small, we are in a low dimensional setting, meaning that we do not suffer from the curse of dimensionality, hence we could even expect extremely flexible nonparametric models to show good performance.
-b) In this case, we would expect better performance from a less flexible model. Given a small $n$, as $p$ increases, overfitting become inevitable, which would lead a high test error rate. A less flexible model could identify a broad trend from what data _is_ available while not fitting the sample too closely.
-c) If the relationship between the predictors and the response is highly non-linear, then a flexible method will perform better because it will provide a smaller model bias than a less flexible method.
-d) The problem with high variance errors is that they obscure the true response-predictor relationship. In this case, a flexible method will be fit to the errors, almost certainly leading to poor test performance. As with scenario (b), we'd be better off using a less flexible model and identifying a broad trend in the data, thereby not fitting the noise too closely.
+b) In this case, we would expect better performance from a less flexible model. Given a small $n$, as $p$ increases, overfitting becomes inevitable, which would lead to a high test error rate. A less flexible model could identify a broad trend from what data _is_ available while not fitting the sample too closely.
+c) If the relationship between the predictors and the response is highly nonlinear, then a flexible method will perform better because it will provide a smaller model bias than a less flexible method.
+d) The problem with high-variance errors is that they obscure the true response-predictor relationship. In this case, a flexible method will be fit to the errors, almost certainly leading to poor test performance. As with scenario (b), we'd be better off using a less flexible model and identifying a broad trend in the data, thereby not fitting the noise too closely.
 
 ## Exercise 2
 ### Problem
 Explain whether each scenario is a classification or regression problem, and indicate whether we are more interested in inference or prediction. Finally, provide $n$ and $p$.
-a) We collect a set of data on the top 500 firms in the US. For each firm, we record record profits, number of employees, industry, and the CEO salary. We are interested in understanding which factors affect CEO salary.
+
+a) We collect a set of data on the top 500 firms in the US. For each firm, we record profit, number of employees, industry, and the CEO salary. We are interested in understanding which factors affect CEO salary.
 b) We are considering launching a new product and wish to know whether it will be a _success_ or _failure_. We collect data on 20 similar products that were previously launched. For each product, we have recorded whether it was a success or failure, price charged for the product, marketing budget, competition price, and ten other variables.
 c) We are interested in predicting the % change in the USD/Euro exchange rate in relation to the weekly changes in the world stock markets. Hence, we collect weekly data for all of 2012. For each week, we record the % change in the USD/Euro, the % change in the US market, the % change in the British market, and the % change in the German market.
 
@@ -43,11 +46,12 @@ c) This is a regression problem because % change is a continuous quantity. The p
 ## Exercise 3
 ### Problem
 We now revisit the bias-variance decomposition.
+
 a) Provide a sketch of typical (squared) bias, variance, training error, test error, and Bayes (or irreducible) error curves, on a single plot, as we go from less flexible statistical learning methods towards more flexible approaches. The x-axis should represent the amount of flexibility in the method, and the y-axis should represent the values for each curve. There should be five curves. Make sure to label each one.
 b) Explain why each of the five curves has the shape displayed in part (a).
 
 ### Solution
-a) The code block below graphs the five curves in question. Note that the specific parameter values and functional forms don't matter, they were just chosen because they produce the correct general shape.
+a) The code block below graphs the five curves in question. Note that the specific parameter values and functional forms don't matter, they were chosen simply because they produce the correct general shape.
 ```{r}
 library(tidyverse)
 
@@ -59,7 +63,9 @@ train = 11/(df^0.36)
 bayes = rep(1.84, 100)
 test = bias2 + variance + bayes
 
-data = data.frame( rep(1:100, 5), rep(c("bias^2", "variance", "training_error", "testing_error", "bayes_error"), each=100)  )
+data = data.frame( rep(1:100, 5), 
+                   rep(c("bias^2", "variance", "training_error", "testing_error", "bayes_error"), 
+                       each=100)  )
 data = data.frame(data, c(bias2,variance,train,test,bayes  ))
 names(data) = c("df", "Variable", "Value")
 
@@ -72,11 +78,12 @@ plt <- ggplot(data=data, aes(x=df, y=Value, group=Variable))+
 plt
 ```
 
-b) The Bayes error is a constant because it is defined as the variacne of the error terms, that is, $\mbox{Var}(\epsilon)$, a quantity which does not vary with the degrees of freedom. The squared bias is represented as a decreasing function that converges to 0, which is the case because as a model becomes more flexible, its form is less constrained, and so the error due to model bias approaches 0. The testing error (in an ideal setting) is represented as the sum of the squared bias, the variance, and the Bayes error, which is justified by the bias-variance decomposition. The training error is represented as another decreasing function that converges to 0, which is the case because as model flexibility increases, it becomes possible to overfit, even to the extreme case of interpolating the data points. Finally, the variance is an increasing function of flexibility. The text doesn't give a detailed argument as to why this is the case, but nonetheless says it is so.
+b) The Bayes error is a constant because it is defined as the variance of the error terms, that is, $\mbox{Var}(\epsilon)$, a quantity which does not vary with the degrees of freedom. The squared bias is represented as a decreasing function that converges to 0, which is the case because as a model becomes more flexible, its form is less constrained, and so the error due to model bias approaches 0. The testing error (in an ideal setting) is represented as the sum of the squared bias, the variance, and the Bayes error, which is justified by the bias-variance decomposition. The training error is represented as another decreasing function that converges to 0, which is the case because as model flexibility increases, it becomes possible to overfit, even to the extreme case of interpolating the data points. Finally, the variance is an increasing function of flexibility. The text doesn't give a detailed argument as to why this is the case, but nonetheless says it is so.
 
 ## Exercise 4
 ### Problem
 You will now think of some real life applications for statistical learning.
+
 a) Describe three real-life applications in which _classification_ might be useful. Describe the response, as well as the predictors. Is the goal of each application inference or prediction? Explain your answer.
 b) Describe three real-life applications in which _regression_ might be useful. Describe the response, as well as the predictors. Is the goal of each application inference or prediction? Explain your answer.
 c) Describe three real-life applications in which _cluster analysis_ might be useful.
@@ -87,13 +94,13 @@ a)
     ii. We may want to predict if a political candidate will win or lose an election on the basis of their sex, age, political party, state, fundraising, and if they are the incumbent or not.
     iii. We may want to predict if a car will sell or not on the basis of make, model, year, and mileage.
 b)
-    i. We may want to relate (infer) the mean delivery time of packets on a computer network on the basis of nodes, traffic over time, and an assortment of measures of network structure.
+    i. We may want to relate (infer) the mean delivery time of packets on a computer network on the basis of the number of nodes, traffic over time, and an assortment of measures of network structure.
     ii. We may want to predict the change in sales on the basis of radio, TV, and newspaper advertising budgets and location data.
     iii. We may want to predict body fat as a function of neck, waist, and hip measurements, weight, height, and biological sex.
 c)
     i. We want to identify online shoppers who are likely to buy a certain product by finding those who have bought many items with the same tags/product descriptors as the one in question.
-    ii. Want to advertise a fuel rewards program by identifying drivers who drive many miles, use a diesel or gas engine, and what kind of vehicle they drive.
-    iii. You want to identify residents of a neighborhood who are using many resources, such as water, electricity, and gas.
+    ii. We want to advertise a fuel rewards program by identifying drivers who drive many miles, use a diesel or gas engine, and what kind of vehicle they drive.
+    iii. We want to identify residents of a neighborhood who are using many resources, such as water, electricity, and gas.
 
 ## Exercise 5
 ### Problem
@@ -107,18 +114,19 @@ Focusing on regression, flexible methods are capable of producing more accurate 
 Describe the differences between a parametric and non-parametric statistical learning approach. What are the advantages of a parametric approach to regression of classification (as opposed to a non-parametric approach)? What are its disadvantages?
 
 ### Solution
-Parametric functions assume a functional form of the relationship between the response and the predictors, whereas non-parametric functions don't. Parametric approaches are easier to interpret than non-parametric approaches, they are less computationally intensive to fit, and they perform better in high dimensional, although they may give less accurate predictions than non-parametric methods due to having higher model bias.
+Parametric models assume a functional form of the relationship between the response and the predictors, whereas non-parametric functions don't. Parametric approaches are easier to interpret than non-parametric approaches, they are less computationally intensive to fit, and they perform better in high dimensional settings, although they may give less accurate predictions than non-parametric methods due to having higher model bias.
 
 ## Exercise 7
 ### Problem
 The table below provides a training data set containing six observations, three predictors, and one qualitative response variable.
 ```{r}
-data = data.frame(c(0,2,0,0,-1,1),c(3,0,1,1,0,1),c(0,0,3,2,1,1),c("Red","Red","Red","Green","Green","Red"))
+data = data.frame(c(0,2,0,0,-1,1),c(3,0,1,1,0,1),c(0,0,3,2,1,1),
+                  c("Red","Red","Red","Green","Green","Red"))
 row.names(data) = 1:6
 names(data) = c("X1", "X2", "X3", "Y")
 data
 ```
-Suppose we wish to use this data set to make a prediction for Y when $X_1=X_2=X_3=0$ using _K_-nearest neighbors.
+Suppose we wish to use this data set to make a prediction for Y when $X_1=X_2=X_3=0$ using _K-nearest neighbors_.
 
 a) Compute the Euclidean distance between each observation and the test point, $X_1=X_2=X_3=0$.
 b) What is our prediction with K=1? Why?
@@ -126,14 +134,16 @@ c) What is our prediction with K=3? Why?
 d) If the Bayes decision boundary in this problem is highly nonlinear, then would we expect the _best_ value for _K_ to be large or small? Why?
 
 ### Solution
-a) In the code block below, the Euclidean distance of each observation from the test point is calculated, and then the rows are put in descending order according to the distance.
+a) In the code block below, the Euclidean distance of each observation from the test point is calculated, and then the rows are put in ascending order according to the distance.
 ```{r}
 distances <- data.frame(sqrt(data$X1^2 + data$X2^2 + data$X3^2), data$Y) %>% 
   set_names(c("dist", "Y")) %>% 
   arrange(dist)
 distances
 ```
-678954c) When _K_ = 3, our prediction is red because a plurality of the _K_ points closest to the test point are red.
+
+b) When _K_ = 1, our prediction is green because a plurality of the _K_ points closest to the test point are green.
+c) When _K_ = 3, our prediction is red because a plurality of the _K_ points closest to the test point are red.
 d) If the Bayes decision boundary is highly nonlinear, then the optimal value of _K_ should be small. When _K_ is small, the KNN classification boundary is able to take on a more squiggly shape, on account of only being determined locally. When _K_ is large, the decision boundary is less flexible because it is smoothed out by a larger set of neighbors.
 
 # Applied
@@ -190,7 +200,7 @@ c)
     pairs(college[,1:10])
     ```
     
-    iii. Use the __plot()__ function to produce side-by-side boxplots of Outstate versus Private
+    iii. Use the __plot()__ function to produce side-by-side boxplots of __Outstate__ versus __Private__.
     ```{r}
     plot(x=college$Private, y=college$Outstate, xlab="Private", ylab="Outstate", main="Outstate vs. Private")
     ```
@@ -210,7 +220,7 @@ c)
 
     Elite colleges tend to have more out-of-state students than non-elite colleges.
 
-    v. Use the __hist()__ function to produce some histograms with differing numbers of bins for a few of the quantitative variables. You may find the command par(mfrow=c(2,2)) useful: It will divide the print window into four regions so that four plots can be made simultaneously. Modifying the arguments to this function will divide the screen in other ways.
+    v. Use the __hist()__ function to produce some histograms with differing numbers of bins for a few of the quantitative variables. You may find the command __par(mfrow=c(2,2))__ useful: It will divide the print window into four regions so that four plots can be made simultaneously. Modifying the arguments to this function will divide the screen in other ways.
     ```{r}
     par(mfrow=c(2,2))
     hist(college$Apps, xlab="Apps", main="Histogram of Apps")
@@ -221,20 +231,20 @@ c)
 
     Many colleges recieve only a few applications (<5000), whereas a few colleges recieve many applications.
     Many colleges accept only a few students (<2500), whereas a few colleges accept many students.
-    The distributions for Top10perc and S.F.Ratio are approximately normal, although the former has a heavy upper tail, which may indicate that there are some elite colleges who have much higher numbers of incoming students who graduated in the top 10% of their high school class.
+    The distributions for __Top10perc__ and __S.F.Ratio__ are approximately normal, although the former has a heavy upper tail, which may indicate that there are some elite colleges who have much higher numbers of incoming students who graduated in the top 10% of their high school class.
 
     vi Continue exploring your data, and provide a brief summary of what you discover.
     ```{r}
     # Okay, let's calculate acceptance rate
     college$AcceptRate = college$Accept/college$Apps
-    par(mfrow=c(3,3))
+    par(mfrow=c(1,3))
     # And now, I want to look at different variables as a function of elite
     for (i in c(10,11,12,13,15,16,17,18,20)){
       plot(x=college$Elite, y=college[,i], xlab="Elite", ylab=names(college)[i], main=paste(names(college)[i],"vs. Elite"))
     }
     ```
     
-    Elite is positively correlated with __Outstate__, __Room.Board__, __PhD__, __perc.alumni__, __Expend__, __Grad.Rate__, and is negatively correlated with __S.F.Ratio__ and __AcceptRate__. All of these associations make sense, as generally, you would expect that elite schools are more expensive and attract the best students and faculty. The acceptance rates are lower, which may help to explain why the student-to-faculty ratios are lower for elite schools.
+    __Elite__ is positively correlated with __Outstate__, __Room.Board__, __PhD__, __perc.alumni__, __Expend__, __Grad.Rate__, and is negatively correlated with __S.F.Ratio__ and __AcceptRate__. All of these associations make sense, as generally, you would expect that elite schools are more expensive and attract the best students and faculty. The acceptance rates are lower, which may help to explain why the student-to-faculty ratios are lower for elite schools.
     
     Below, the percentage of private and publuc schools that are elite is reported, respectively.
     ```{r}
@@ -243,7 +253,7 @@ c)
     sum( college$Private == "No" & college$Elite == "Yes")/length(college$Private)*100
     ```
     
-    Finally, in the histogram of top10perc produced in part (c.v), note that the upper tail of the distribution was rather heavy, with a high mode around 20% and a low mode around 80%. It may be possible to model this distribution as a mixture of two normal distributions, one of top10perc given not elite, and the other of top10perc given elite. As preliminary evidence, consider that the means of top10percent over these two groups are very different.
+    Finally, in the histogram of __top10perc__ produced in part (c.v), note that the upper tail of the distribution was rather heavy, with a high peak around 20% and a low peak around 80%. It may be possible to model this distribution as a mixture of two normal distributions of __top10perc__, one for non-elite schools and one for elite schools. As preliminary evidence, consider that the means of __top10percent__ over these two groups are very different.
     ```{r}
     # Mean of top10perc given elite
     mean(college$Top10perc[college$Elite == "Yes"])
@@ -301,7 +311,7 @@ pairs(Auto[,-c(8,9)])
 1. Cars become more efficient over time, based on the tendency for __mpg__ to increase with __year__.
 2. __mpg__ decreases with __cylinders__, whereas __horsepower__ increases with __cylinders__, so it seems that there is a trade off between fuel efficiency and power.
 
-f) Suppose that we wish to predict gas mileage (__mpg__) on the basis of the other variables. Do your plots suggest that any of the other variables might be useful in predicting mpg? Justify your answer.
+f) Suppose that we wish to predict gas mileage (__mpg__) on the basis of the other variables. Do your plots suggest that any of the other variables might be useful in predicting __mpg__? Justify your answer.
 
 Yes. _cylinders__, __year__, __displacement__, __horsepower__, and __weight__ all appear to be correlated with __mpg__, so these variables should be considered if attempting to predict __mpg__ from this data.
 
@@ -311,15 +321,14 @@ a) To begin, load in the __Boston__ data set. The __Boston__ data set is part of
 ```{r}
 library(MASS)
 ```
-Now the data set is contained in the object Boston.
+Now the data set is contained in the object __Boston__.
 
 How many rows are in this data set? How many columns? What do the rows and columns represent?
-
-This data set has 506 rows and 14 columns. Each row represents a suburb of Boston, and, pasting the output from the help file,
 ```{r}
 # ?Boston
 ```
-the columns are:
+
+Referring to the help file, this data set has 506 rows and 14 columns. Each row represents a suburb of Boston, and the columns are:
 
 * __crim__: per capita crime rate by town
 * __zn__: proportion of residential land zoned for lots over 25,000 sq.ft.
@@ -337,19 +346,27 @@ the columns are:
 * __medv__: median value of owner-occupied homes in $1000s
 
 b) Make some pairwise scatterplots of the predictors (columns) in this data set. Describe your findings.
+
+It would not be feasible to look at all of the scatterplots, as there are 91 of them in total. Instead, in this part, we'll look at scatterplots for __nox__ versus all of the other predictors, as we may be interested in predicting the concentration of potentially harmful gases.
 ```{r}
+par(mfrow=c(1,2))
 for (i in 1:14){
   plot(Boston[,i], Boston$nox, xlab=names(Boston)[i], ylab="nox", main=paste("NOx vs.", names(Boston)[i]))
 }
 ```
-__nox__ has the strongest positive correlations with __indus__, __age__, __rad__, __tax__, __ptratio__, and __lstat__, and the strongest negative correlations with __medv__, __black__, __dis__, and __zn__.
+
+From these scatterplots, we can observe that __nox__ has the strongest positive correlations with __indus__, __age__, __rad__, __tax__, __ptratio__, and __lstat__, and the strongest negative correlations with __medv__, __black__, __dis__, and __zn__.
 
 c) Are there any predictors associated with per capita crime rate? If so, explain the relationship.
+
+Crime is another potentially harmful thing we would wish to predict, so we should look at the scatterplots of crime vs. the other predictors.
 ```{r}
+par(mfrow=c(1,2))
 for (i in 1:14){
   plot(Boston[,i], Boston$crim, xlab=names(Boston)[i], ylab="crim", main=paste("crim vs.", names(Boston)[i]))
 }
 ```
+
 Crime is positively correlated with __nox__, __age__, __rad__, __tax__, __lstat__, and negatively correlated with __medv__.
 
 d) Do any of the suburbs of Boston appear to have particularly high crime rates? Tax rates? Pupil-teacher ratios? Comment on the range of each predictor.
@@ -361,18 +378,28 @@ summary(Boston$tax)
 summary(Boston$ptratio)
 ```
 
-Most suburbs of Boston have a low crime rates (75% < 3.677 crimes per capita). But the upper tail is quite long, with one town even reaching a crime rate of 89%.
+We'll also take a look at histograms of these quantities.
+
+```{r}
+hist(Boston$crim, main="Histogram of Boston$crim")
+```
+
+Most suburbs of Boston have a low crime rates (75% with less than 3.677 crimes per capita). But the upper tail is quite long, with one town even reaching a crime rate of 89%.
+
+```{r}
+hist(Boston$tax, main="Histogram of Boston$tax")
+```
 
 The __tax__ distribution is bimodal, which may indicate that most neighborhoods were affordable, with a large handful being much more expensive.
 
-The __ptratio__ distribution is left skewed, which means that there are many suburbs of Boston where each teacher has to tend to many students. The neighborhoods with the highest crime rates have __ptratio__ values near the 3rd quartile. Interestingly, neighborhoods with __ptratio__ values between the 3rd and 4th quartiles have lower crime rates than those near the 3rd quartile.
+```{r}
+hist(Boston$ptratio, main="Histogram of Boston$ptratio")
+```
+
+The __ptratio__ distribution is left skewed, which means that there are many suburbs of Boston where each teacher has to tend to many students. Referring back to the scatterplot of __crim__ vs. __ptratio__ produced in part c, note that the neighborhoods with the highest crime rates have __ptratio__ values near the 3rd quartile. Interestingly, neighborhoods with __ptratio__ values between the 3rd and 4th quartiles have lower crime rates than those near the 3rd quartile.
 
 Inspecting for potential confounders leads to some interesting observations.
 ```{r}
-for (i in c(2:10,12:14) ){
-  scatterplot3d(x=Boston$ptratio, y=Boston[,i], z=Boston$crim, ylab=names(Boston)[i], type="h")
-}
-
 scatterplot3d(x=Boston$ptratio, y=Boston$tax, z=Boston$crim, xlab="ptratio", ylab="tax", zlab="crim", main="Crime Rates vs. Pupil Teacher Ratio\n and Property Tax Rate")
 ```
 
@@ -389,7 +416,7 @@ scatterplot3d(x=Boston$ptratio, y=Boston$age, z=Boston$crim, xlab="ptratio", yla
 
 All of the highest crime rate towns are very old.
 
-From this, we observe that the towns with the highest crime rates have many old buildings and are very close to Boston-proper. The fact that so many suburbs have a ptratio at one value, and that there is so much variation in the other predictors when ptratio is fixed at this value, may mean that this ptratio is some kind of state standard.
+From this, we observe that the towns with the highest crime rates have many old buildings and are very close to Boston-proper.
 
 e) How many of the suburbs in this data set bound the Charles river?
 ```{r}
@@ -423,7 +450,7 @@ row.names(min_val_town_percentiles) = c(399, 406)
 min_val_town_percentiles
 ```
 
-The placement of these suburbs' predictors is very similar, except for the percentiles of __rm__, __dis__, __black__, and __lstat__.
+The values of these suburbs' predictors are very similar, except for the percentiles of __rm__, __dis__, __black__, and __lstat__.
 
 h) In this data set, how many of the suburbs average more than seven rooms per dwelling? More than eight rooms per dwelling? Comment.
 ```{r}
@@ -456,7 +483,7 @@ for (i in 1:14){
 }
 df
 ```
-These towns have a very high median value. Many of them are on the Charleston River. They have a low ptratio, which means that there are many teachers for each student. Only a very small percentage of the population is of lower status. The crime is middling. This implies that these neighborhoods are wealthy, perhaps with many apartment buildings. It would be interesting to know if the crimes being committed in these suburbs are property crimes, as it's a common phenomenon for wealthy neighborhoods near big cities to suffer from such crime. It's surprising that the mean property tax is so low.
+These towns have a very high median value. Many of them are on the Charleston River. They have a low __ptratio__, which means that there are many teachers for each student. Only a very small percentage of the population is of lower status. The crime is middling. This implies that these neighborhoods are wealthy, perhaps with many apartment buildings. It would be interesting to know if the crimes being committed in these suburbs are property crimes, as it's a common phenomenon for wealthy neighborhoods near big cities to suffer from such crime. It's surprising that the mean property tax is so low.
 
 
 
