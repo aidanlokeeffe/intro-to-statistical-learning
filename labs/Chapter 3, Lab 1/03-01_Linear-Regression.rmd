@@ -1,0 +1,274 @@
+---
+title: "Chapter 2, Lab 1: Introduction to R"
+author: "Aidan O'Keeffe"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+In this lab, we will introduce some simple **R** commands. The best way to learn a new language is to try out the commands. **R** can be downloaded from http://cran.r-project.org/
+
+## 2.3.1 Basic Commands
+__R__ uses _functions_ to perform operations. To run a function called __funcname__, we type __funcname(input1, input2)__, where the inputs (or _arguments_) __input1__ and __input2__ tell __R__ how to run the function. A function can have any number of inputs. For example, to create a vector of numbers, we use the function __c()__ (for _concatenate_). Any numbers inside the parentheses are joined together. The following command instructs __R__ to join together the numbers 1, 3, 2, and 5, and to save them to a _vector_ named __x__. When we type __x__, it gives us back the vector.
+
+```{r}
+x <- c(1,3,2,5)
+x
+```
+
+Note that we can save things using "=" rather than "<-":
+```{r}
+x = c(1,6,2)
+y = c(1,4,3)
+```
+
+Hitting the _up_ arrow multiple times will display the previous commands, which can then be edited. This is useful since one often wishes to repeat a similar command. In addition, typing __?funcname__ will always cause __R__ to open a new help file window with additional information about the function __funcname__.
+
+We can tell __R__ to add two sets of numbers together. It will then add the first number from __x__ to the first number of __y__, and so on. However, __x__ and __y__ should be the same length. We can check their length using the __length()__ function.
+```{r}
+length(x)
+length(y)
+x+y
+```
+
+The __ls()__ function allows us to look at a list of all of the objects, such as data and functions, that we have saved so far. The __rm()__ function can be used to delete any that we don't want.
+```{r}
+ls()
+rm(x,y)
+ls()
+```
+
+It is also possible to remove all objects at once
+```{r}
+rm(list=ls())
+```
+
+The __matrix()__ function function can be used to create a matrix of numbers. Before we use the __matrix()__ function, we can learn more about it:
+```{r}
+#?matrix
+```
+
+The help file revelas that the __matrix()__ function takes a number of inputs, but for now we focus on the first three: the data (the entries in the matrix), the number of rows, and the number of columns. First, we create a simple matrix.
+```{r}
+x = matrix(data=c(1,2,3,4), nrow=2, ncol=2)
+x
+```
+
+Now, we could just as well omit typing __data=__, __nrow=__, and __ncol=__ in the command above; that is, we could just type
+```{r}
+x=matrix(c(1,2,3,4),2,2)
+```
+and this would have the same effect. However, it can sometimes be useful to specify the names of the arguments passed in, since otherwise __R__ will assume that the function arguments are passed into the function in the same order that is given in the function's help file. As this example illustrates, by default __R__ creates matrices by successively filling in columns. Alternatively, the __byrow=TRUE__ option can be used to populate the matrix in order of the rows.
+```{r}
+matrix(c(1,2,3,4),2,2,byrow=TRUE)
+```
+Notice that in the above command we did not assign the matrix to a value such as __x__. In this case the matrix is printed to the screen but is not saved for future calculations. The __sqrt()__ function returns the square root of each element of a vector or matrix. The command __x^2__ raises each element of __x__ to the power 2; any powers are possible, including fractional or negative powers.
+```{r}
+sqrt(x)
+x^2
+```
+
+The __rnorm__ function generates a vector of random normal variables, with first argument __n__ the sample size. Each time we call this function, we will get a different answer. Here, we create two correlated sets of numbers, __x__ and __y__, and use the __cor()__ function to compute the correlation between them.
+```{r}
+x = rnorm(50)
+y = x+rnorm(50,mean=50,sd=0.1)
+cor(x,y)
+```
+By default, __rnorm()__ creates standard normal random variables with a mean of 0 and a standard deviation of 1. However, the mean and standard deviation can be altered using the __mean__ and _sd__ arguments, as illustrated above. Sometimes, we want our code to reproduce the exact same set of random numbers; we can use the __set.seed()__ function to do this. The __set.seed()__ function takes an (arbitrary) integer argument.
+```{r}
+set.seed(1303)
+rnorm(5)
+set.seed(1303)
+rnorm(5)
+```
+We use __set.seed()__ throughout the labs whenever we perform calculations involving random quantities. In general, this should allow the user to reproduce our results. However, it should be noted that as new versions of __R__ become available it is possible that some small discrepancies may form between the book and the output from __R__.
+
+The __mean()__ and __var()__ functions can be used to compute the mean and variance of a vector of numbers. Applying __sqrt()__ to the output of __var()__ will give the standard deviation. Or we can simply use the __sd()__ function.
+```{r}
+set.seed(3)
+y = rnorm(100)
+mean(y)
+var(y)
+sqrt(var(y))
+sd(y)
+```
+
+## 2.3.2 Graphics
+The __plot()__ function is the primary way to plot data in __R__. For instance, __plot(x,y)__ produces a scatterplot of the numbers in __x__ versus the numbers in __y__. There are many additional options that can be passed in to the __plot()__ function. For example, passing in the argument __xlab__ will result in a label on the _x_-axis. To find out more information about the __plot()__ function, type __?plot__.
+```{r}
+x = rnorm(100)
+y = rnorm(100)
+plot(x,y)
+plot(x,y, xlab="this is the x-axis", ylab="this is the y-axis", main="Plot of X vs. Y")
+```
+We will often want to save the output of an __R__ plot. The command that we use to do this will depend on the file type that we would like to create. For instance, to create a pdf, we use the __pdf()__ function, and to create a jpeg, we use the __jpeg()__ function.
+```{r}
+pdf("Figure.pdf")
+plot(x,y,col="green")
+dev.off()
+```
+The function __dev.off()__ indicates to __R__ that we are done creating the plot. Alternatively, we can simply copy the plot window and paste it into an appropriate file type, such as a Word document.
+
+The function __seq()__ can be used to create a sequence of numbers. For instance, __seq(a,b)__ makes a vector of integers between __a__ and __b__. There are many other options; for instance, __seq(0,1,length=10)__ makes a sequence of 10 numbers that are equally spaced between 0 and 1. Typing __3:11__ is a shorthand for __seq(3,11)__ for integer arguments.
+```{r}
+x=seq(1,10)
+x
+x=1:10
+x
+```
+
+We will not create some more sophisticated plots. The __contour()__ function produces a _contour plot_ in order to represent three-dimensional data; it is like a topographical map. It takes three arguments:
+
+1. A vector of the __x__ values (the first dimension),
+2. A vector of the __y__ values (the second dimension), and
+3. A matrix whose elements correspond to the __z__ value (the third dimension) for each pair of (__x__,__y__) coordinates.
+
+As with the plot function, there are many other inputs that can be used to fine-tune the output of the __contour__ function. To learn more about these, take a look at the help file by typing __?contour__.
+```{r}
+x = seq(-pi,pi, length=50)
+y = x
+f = outer(x,y,function(x,y)cos(y)/(1+x^2))
+contour(x,y,f)
+
+#contour(x,y,f,nlevels=45, add=T) the add=T means that this contour plot is drawn on top of the previous one
+
+contour(x,y,f,nlevels=45)
+
+fa = (f-t(f))/2
+contour(x,y,fa,nlevels=15)
+
+```
+
+The __image()__ function works the same wat as __contour__, except that is produces a color-coded plot whose colors depend on the __z__ value. This is known as a heatmap, and is sometimes used to plot temperature in weather forecasts. Alternatively, __persp__ can be used to produce a three-dimensional plot. The arguments __theta__ and __phi__ control the angles at which the plot is viewed.
+```{r}
+image(x,y,fa)
+persp(x,y,fa)
+persp(x,y,fa,theta=30)
+persp(x,y,fa,theta=30,phi=20)
+persp(x,y,fa,theta=30,phi=70)
+persp(x,y,fa,theta=30,phi=40)
+```
+
+## 2.3.3 Indexing Data
+We often wish to examine part of a set of data. Suppose that our data is stored in the matrix __A__.
+```{r}
+A = matrix(1:16,4,4)
+```
+Then, typing
+```{r}
+A[2,3]
+```
+will select the element corresponding to the second row and the third column. The first number after the open-bracket symbol __[__ always refers to the row, and the second number always refers to the column. We can also select multiple rows and columns at a time, by providing vectors as the indices.
+```{r}
+A[c(1,3),c(2,4)]
+A[1:3,2:4]
+A[1:2,]
+A[,1:2]
+```
+The last two examples include either no index for the columns or not index for the rows. These indicate that __R__ should include all columns or rows, respectively. __R__ treats a single row or column of a matrix as a vector.
+```{r}
+A[1,]
+```
+The use of a negative sign __-__ in the index tells __R__ to keep all rows or columns except those indicated in the index.
+```{r}
+A[-c(1,3),]
+A[-c(1,3),-c(1,3,4)]
+```
+The __dim()__ function outputs the number of rows followed by the number of columns of a given matrix.
+```{r}
+dim(A)
+```
+
+## 2.3.4 Loading Data
+For most analyses, the first step involved importing a data set into __R__. The __read.table()__ function is one of the primary ways to do this. The help file contains details about how to use this function. We can use the function __write.table()__ to export data.
+
+Before attempting to load a data set, we must make sure that __R__ knows to search for the data in the proper directory. For example, on a Windows system, one could select the directory using the __Change dir...__ option under the __File__ menu. However, the details of how to do this depend on the operating system, (e.g. Windows, Mac, Unix) that is being used, and so we do not give further details here. We begin by loading in the __Auto__ data set. This data is part of the __ISLR_ library (we discuss libraries in Chapter 3), but to illustrate the __read.table()__ function we load it now from a text file. The following command will load the Auto.data file into __R__ and store it as an object called __Auto__, in a format referred to as a _data frame_. (This test file can be obtained from this book's website.) Once the data has been loaded, the __fix()__ function can be used to view it in a spreadsheet like window. However, the window must be closed before further __R__ commands can be entered.
+```{r}
+Auto = read.table("Auto.data")
+#fix(Auto)
+```
+Note that Auto.data is simply a text file, which you could alternatively open on your computer using a standard text editor. It is often a good idea to view a data set using a text editor or other software such as Excel before loading it into __R__.
+
+This particular data set has not been loaded correctly, because __R__ has assumed that the variable names are part of the data and so has included them in the first row. The data set also includes a number of missing observations, indicated by the question mark __?__. Missing values are a common occurrence in real data sets. Using the option __header=T__ (or __header=TRUE__) in the __read.table()__ function tells __R__ that the first line of the file contains the variable names, and using the option __na.strings__ tells __R__ that any time it sees a particular character or set of characters (such as a question mark), is should be treated as a missing element of the data matrix.
+```{r}
+Auto=read.table("Auto.data", header=TRUE, na.strings="?")
+#fix(Auto)
+```
+Excel is a common-format data storage program. An easy way to load such data into __R__ is to save it as a csv (comma separated value) file and then use the __read.csv()__ function to load it in.
+```{r}
+Auto = read.csv("Auto.csv", header=TRUE, na.strings="?")
+#fix(Auto)
+dim(Auto)
+Auto[1:4,]
+```
+The __dim()__ function tells us that the data has 397 observations, or rows, and 9 variables, or columns. There are various ways to deal with the missing data. In this case, only 5 of the rows contain missing observations, and so we chose to use the na.omit() function to simply remove these rows.
+```{r}
+Auto = na.omit(Auto)
+dim(Auto)
+```
+
+Once the data are loaded correctly, we can use __names()__ to check the variable names.
+```{r}
+names(Auto)
+```
+
+## 2.3.5 Additional Graphical and Numerical Summaries
+We can use the __plot()__ function to produce scatterplots of the quantitative variables. However, simply typing the variable names will produce an error message, because __R__ does not know to look in the Auto data set for those variables.
+
+To refer to a variable, we must type the data set and the variable name joined with a __$__ symbol. Alternatively, we can use the __attach()__ function in order to tell __R__ to make the variables in this data frame available by name.
+```{r}
+plot(Auto$cylinders, Auto$mpg)
+attach(Auto)
+plot(cylinders, mpg)
+```
+The __cylinders__ variable is stored as a numeric vector, so __R__ has treated it as quantitative. However, since there are only a small number of possible values for __cylinders__, one may prefer to treat it as a qualitative variable. The __as.factor()__ function converts quantitative variables into qualitative variables.
+```{r}
+cylinders = as.factor(cylinders)
+cylinders
+```
+If ther variable plotted on the _x_-axis is categorical, then _boxplots_ will automatically be produced by the __plot()__ function. As usual, a number of options can be specified in order to customize the plots.
+```{r}
+plot(cylinders, mpg)
+plot(cylinders, mpg, col="red", varwidth=T, horizontal=T, xlab="cylinders", ylab="MPG")
+```
+
+The __hist()__ function can be used to plot a _histogram_. Note that __col=2__ has the same effect as __col="red"__.
+```{r}
+hist(mpg)
+hist(mpg, col=2)
+hist(mpg, col=2, breaks=15)
+```
+The __pairs()__ function creates a _scatterplot matrix_, i.e. a scatterplot for every pair of variables for any given data set. We can also produce scatterplots for just a subset of the variables.
+```{r}
+pairs(Auto[, !(names(Auto)) %in% c("name") ])
+pairs(~mpg + displacement + horsepower + weight + acceleration, Auto)
+```
+
+In conjunction with the __plot()__ function, __identify()__ provides a useful interactive method for identifying the value for a particular variable for points on a plot. We pass in three arguments to __identify()__:
+
+1. The _x_-axis variable,
+2. The _y_-axis variable, and
+3. The variable whose values we would like to see printed for each point.
+
+Then, clicking on a given point in the plot will cause __R__ to print the value of the variable of interest. Right-clicking on the plot will exit the __identify()__ function. The numbers printed under the __identify()__ function correspond to the rows for the selected points.
+```{r}
+plot(horsepower, mpg)
+identify(horsepower, mpg, name)
+```
+
+Note that identify isn't gonna work for you if you're using Markdown.
+
+The __summary()__ function produces a numerical summary of each variable in a particular data set.
+```{r}
+summary(Auto)
+```
+For qualitative variables such as __name__, __R__ will list the number of observations that fall in each category. We can also produce a summary of just a single variable.
+```{r}
+summary(mpg)
+```
+
+Once we have finished using __R__, we type __q()__ in order to shut it down, or quit. When exiting __R__, we have the option to save the current _workspace_ so that all objects (such as data sets) that we have created in this __R__ session will be available next time. Before exiting __R__, we may want to save a record of all of the commands that we have typed in the most recent session; this can be accomplished using the __savehistory()__ function. Next time we enter __R__, we can load that history using the __loadhistory()__ function.
+
